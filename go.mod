@@ -1,4 +1,4 @@
-module github.com/xusworld/ConcurrentMap
+module github.com/xusworld/dconcurrent-map
 
 go 1.15
 

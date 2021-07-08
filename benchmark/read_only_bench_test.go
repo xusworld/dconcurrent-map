@@ -69,11 +69,14 @@ func TestBatchReadOnly(t *testing.T) {
 	mm := benchmark.NewMutexMap()
 	mm.Set("MagicNumber", 42)
 
+
+	newCM := hashmap.NewConcurrentMap(32)
+	newCM.Set("MagicNumber", 42)
+
 	cm := benchmark.NewConcurrentMap()
 	cm.Set("MagicNumber", 42)
 
-	newCM := hashmap.NewConcurrentMap(32)
 
-	batchReadOnlyBenchmark([]hashmap.HashMap{sm, bim, rwm, mm, cm, newCM}, concurrency, readTimes,
-		[]string{"sync.Map", "build-in map", "RWMutexMap", "MutexMap", "ConcurrentMap", "New ConcurrentMap"})
+	batchReadOnlyBenchmark([]hashmap.HashMap{sm, bim, rwm, mm, newCM, cm}, concurrency, readTimes,
+		[]string{"sync.Map", "build-in map", "RWMutexMap", "MutexMap", "New concurrent-map", "concurrent-map"})
 }

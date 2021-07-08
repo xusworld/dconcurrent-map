@@ -33,7 +33,7 @@ func NewConcurrentMap(segmentNums int) *ConcurrentMap {
 }
 
 func (cm *ConcurrentMap) GetSegment(key string) *Segment {
-	return cm.segments[uint(fnv32(key))%uint(cm.shardCount)]
+	return cm.segments[uint(fnv32(key))%uint(32)]
 }
 
 func (cm *ConcurrentMap) Set(key string, val interface{}) {
@@ -43,7 +43,10 @@ func (cm *ConcurrentMap) Set(key string, val interface{}) {
 
 func (cm *ConcurrentMap) Get(key string) interface{} {
 	segment := cm.GetSegment(key)
-	val := segment.Get(key)
+
+	segment.RLock()
+	val := segment.items[key]
+	segment.RUnlock()
 	return val
 }
 
@@ -93,13 +96,6 @@ func (s *Segment) Set(key string, val interface{}) {
 	s.Unlock()
 }
 
-func (s *Segment) Get(key string) interface{} {
-	s.RLock()
-	val, _ := s.items[key]
-	s.RUnlock()
-	return val
-}
-
 func (s *Segment) Del(key string) {
 	s.Lock()
 	delete(s.items, key)
@@ -121,6 +117,6 @@ func (s *Segment) Clear() {
 	s.Unlock()
 }
 
-func (s *Segment) ForEach(func(key string, val interface{}) bool) {
-	// TODO
+func (s *Segment) ForEach(_ func(key string, val interface{}) bool) {
+	panic("not implement yet!")
 }
