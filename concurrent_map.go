@@ -33,7 +33,7 @@ func (m ConcurrentMap) GetShard(key interface{}) *ConcurrentMapShared {
 	return m[uint(hash(key))%uint(ShardCount)]
 }
 
-func (m ConcurrentMap) MSet(data map[string]interface{}) {
+func (m ConcurrentMap) MSet(data map[interface{}]interface{}) {
 	for key, value := range data {
 		shard := m.GetShard(key)
 		shard.Lock()
@@ -43,7 +43,7 @@ func (m ConcurrentMap) MSet(data map[string]interface{}) {
 }
 
 // Sets the given value under the specified key.
-func (m ConcurrentMap) Set(key string, value interface{}) {
+func (m ConcurrentMap) Set(key interface{}, value interface{}) {
 	// Get map shard.
 	shard := m.GetShard(key)
 	shard.Lock()
@@ -69,7 +69,7 @@ func (m ConcurrentMap) Upsert(key string, value interface{}, cb UpsertCb) (res i
 }
 
 // Sets the given value under the specified key if no value was associated with it.
-func (m ConcurrentMap) SetIfAbsent(key string, value interface{}) bool {
+func (m ConcurrentMap) SetIfAbsent(key interface{}, value interface{}) bool {
 	// Get map shard.
 	shard := m.GetShard(key)
 	shard.Lock()
@@ -82,7 +82,7 @@ func (m ConcurrentMap) SetIfAbsent(key string, value interface{}) bool {
 }
 
 // Get retrieves an element from map under given key.
-func (m ConcurrentMap) Get(key string) (interface{}, bool) {
+func (m ConcurrentMap) Get(key interface{}) (interface{}, bool) {
 	// Get shard
 	shard := m.GetShard(key)
 	shard.RLock()
@@ -105,7 +105,7 @@ func (m ConcurrentMap) Count() int {
 }
 
 // Looks up an item under specified key
-func (m ConcurrentMap) Has(key string) bool {
+func (m ConcurrentMap) Has(key interface{}) bool {
 	// Get shard
 	shard := m.GetShard(key)
 	shard.RLock()
@@ -126,12 +126,12 @@ func (m ConcurrentMap) Remove(key interface{}) {
 
 // RemoveCb is a callback executed in a map.RemoveCb() call, while Lock is held
 // If returns true, the element will be removed from the map
-type RemoveCb func(key string, v interface{}, exists bool) bool
+type RemoveCb func(key interface{}, v interface{}, exists bool) bool
 
 // RemoveCb locks the shard containing the key, retrieves its current value and calls the callback with those params
 // If callback returns true and element exists, it will remove it from the map
 // Returns the value returned by the callback (even if element was not present in the map)
-func (m ConcurrentMap) RemoveCb(key string, cb RemoveCb) bool {
+func (m ConcurrentMap) RemoveCb(key interface{}, cb RemoveCb) bool {
 	// Try to get shard.
 	shard := m.GetShard(key)
 	shard.Lock()
@@ -145,7 +145,7 @@ func (m ConcurrentMap) RemoveCb(key string, cb RemoveCb) bool {
 }
 
 // Pop removes an element from the map and returns it
-func (m ConcurrentMap) Pop(key string) (v interface{}, exists bool) {
+func (m ConcurrentMap) Pop(key interface{}) (v interface{}, exists bool) {
 	// Try to get shard.
 	shard := m.GetShard(key)
 	shard.Lock()
