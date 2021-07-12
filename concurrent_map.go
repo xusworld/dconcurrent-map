@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-const (
+var (
 	ShardCount = 32
 )
 
@@ -30,7 +30,7 @@ func New() ConcurrentMap {
 
 // GetShard returns shard under given key
 func (m ConcurrentMap) GetShard(key interface{}) *ConcurrentMapShared {
-	return m[uint(fnv32(key))%uint(ShardCount)]
+	return m[uint(hash(key))%uint(ShardCount)]
 }
 
 func (m ConcurrentMap) MSet(data map[string]interface{}) {
@@ -238,8 +238,8 @@ func fanIn(chans []chan Tuple, out chan Tuple) {
 }
 
 // Items returns all items as map[string]interface{}
-func (m ConcurrentMap) Items() map[string]interface{} {
-	tmp := make(map[string]interface{})
+func (m ConcurrentMap) Items() map[interface{}]interface{} {
+	tmp := make(map[interface{}]interface{})
 
 	// Insert items to temporary map.
 	for item := range m.IterBuffered() {
@@ -253,7 +253,7 @@ func (m ConcurrentMap) Items() map[string]interface{} {
 // maps. RLock is held for all calls for a given shard
 // therefore callback sess consistent view of a shard,
 // but not across the shards
-type IterCb func(key string, v interface{})
+type IterCb func(key interface{}, v interface{})
 
 // Callback based iterator, cheapest way to read
 // all elements in a map.
@@ -269,9 +269,9 @@ func (m ConcurrentMap) IterCb(fn IterCb) {
 }
 
 // Keys returns all keys as []string
-func (m ConcurrentMap) Keys() []string {
+func (m ConcurrentMap) Keys() []interface{} {
 	count := m.Count()
-	ch := make(chan string, count)
+	ch := make(chan interface{}, count)
 	go func() {
 		// Foreach shard.
 		wg := sync.WaitGroup{}
@@ -292,7 +292,7 @@ func (m ConcurrentMap) Keys() []string {
 	}()
 
 	// Generate keys
-	keys := make([]string, 0, count)
+	keys := make([]interface{}, 0, count)
 	for k := range ch {
 		keys = append(keys, k)
 	}
@@ -302,22 +302,11 @@ func (m ConcurrentMap) Keys() []string {
 //Reviles ConcurrentMap "private" variables to json marshal.
 func (m ConcurrentMap) MarshalJSON() ([]byte, error) {
 	// Create a temporary map, which will hold all item spread across shards.
-	tmp := make(map[string]interface{})
+	tmp := make(map[interface{}]interface{})
 
 	// Insert items to temporary map.
 	for item := range m.IterBuffered() {
 		tmp[item.Key] = item.Val
 	}
 	return json.Marshal(tmp)
-}
-
-func fnv32(key interface{}) uint32 {
-	hash := uint32(2166136261)
-	const prime32 = uint32(16777619)
-	keyLength := len(key)
-	for i := 0; i < keyLength; i++ {
-		hash *= prime32
-		hash ^= uint32(key[i])
-	}
-	return hash
 }

@@ -2,7 +2,6 @@ package cmap
 
 import (
 	"encoding/json"
-	"hash/fnv"
 	"sort"
 	"strconv"
 	"testing"
@@ -341,28 +340,6 @@ func TestClear(t *testing.T) {
 	}
 }
 
-func TestIterCb(t *testing.T) {
-	m := New()
-
-	// Insert 100 elements.
-	for i := 0; i < 100; i++ {
-		m.Set(strconv.Itoa(i), Animal{strconv.Itoa(i)})
-	}
-
-	counter := 0
-	// Iterate over elements.
-	m.IterCb(func(key string, v interface{}) {
-		_, ok := v.(Animal)
-		if !ok {
-			t.Error("Expecting an animal object")
-		}
-
-		counter++
-	})
-	if counter != 100 {
-		t.Error("We should have counted 100 elements.")
-	}
-}
 
 func TestItems(t *testing.T) {
 	m := New()
@@ -485,19 +462,6 @@ func TestMInsert(t *testing.T) {
 	}
 }
 
-func TestFnv32(t *testing.T) {
-	key := []byte("ABC")
-
-	hasher := fnv.New32()
-	_, err := hasher.Write(key)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	if fnv32(string(key)) != hasher.Sum32() {
-		t.Errorf("Bundled fnv32 produced %d, expected result from hash/fnv32 is %d", fnv32(string(key)), hasher.Sum32())
-	}
-
-}
 
 func TestUpsert(t *testing.T) {
 	dolphin := Animal{"dolphin"}
