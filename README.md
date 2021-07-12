@@ -1,6 +1,7 @@
 # dconcurrent-map
 Golang 高性能并发HashMap实现，弥补 sync.Map 性能上的缺陷。
 
+map[interface{}]interface{}
 ## 接口介绍
 
 ```
