@@ -4,7 +4,7 @@ dconcurrent-map based on orcaman's cool job [concurrent-map](https://github.com/
 
 ## API
 
-```
+```go
 // create a brand new thread safe map
 sm := New()
 	
@@ -51,7 +51,7 @@ sm.MSet(items)
 
 `hash()` can many golang build-in type.
 
-```
+```go
 func hash(key interface{}) uint32 {
 	buff, err := toBytes(key)
 	if err != nil {
