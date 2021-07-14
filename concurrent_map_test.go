@@ -7,6 +7,50 @@ import (
 	"testing"
 )
 
+
+func TestStringMap(t *testing.T) {
+	// create a brand new thread safe map
+	sm := New()
+
+	// set key/val pair to map
+	sm.Set("Hello", "World")
+
+	// get the specified element
+	sm.Get("Hello")
+
+	// remove the specified key/val pair from map
+	sm.Remove("Hello")
+
+	// returns the number of elements within the map
+	sm.Count()
+
+	// checks if map is empty
+	sm.IsEmpty()
+
+	// removes all items from map
+	sm.Clear()
+
+	// returns all items as map[interface{}]interface{}
+	sm.Items()
+
+	// returns all keys as []interface{}
+	sm.Keys()
+
+	// looks up an item under specified key
+	sm.Has("Hello")
+
+	// removes an element from the map and returns it
+	sm.Pop("Hello")
+
+
+	items := map[interface{}]interface{}{
+		"Hello":"world",
+	}
+	// set all items of parameter  to map
+	sm.MSet(items)
+
+}
+
 type Animal struct {
 	name string
 }
@@ -130,11 +174,11 @@ func TestRemoveCb(t *testing.T) {
 	m.Set("elephant", elephant)
 
 	var (
-		mapKey   string
+		mapKey   interface{}
 		mapVal   interface{}
 		wasFound bool
 	)
-	cb := func(key string, val interface{}, exists bool) bool {
+	cb := func(key, val interface{}, exists bool) bool {
 		mapKey = key
 		mapVal = val
 		wasFound = exists
@@ -450,7 +494,7 @@ func TestKeys(t *testing.T) {
 }
 
 func TestMInsert(t *testing.T) {
-	animals := map[string]interface{}{
+	animals := map[interface{}]interface{}{
 		"elephant": Animal{"elephant"},
 		"monkey":   Animal{"monkey"},
 	}
