@@ -14,4 +14,5 @@ val := cm.Get("Golang")
 cm.Del("Golang")
 ```
 
-## 
+## TODO
+1. change key type to interface{} will cause performance loss  
